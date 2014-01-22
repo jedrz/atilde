@@ -5,14 +5,15 @@
 (require 'dash)
 
 (defvar atilde-words '("a" "e" "i" "o" "u" "w" "z"
-                       "A" "E" "I" "O" "U" "W" "Z"
                        "od" "nad" "pod"))
 
+(defun atilde-build-regexp (word)
+  (format "\\(^%s\\| %s\\)" word word))
+
 (defun atilde-insert-tilde? ()
-  (let ((before-space-pos (max (line-beginning-position) (point-min))))
-    (save-excursion
-      (--any? (search-backward it before-space-pos t)
-              atilde-words))))
+  (let ((start (line-beginning-position)))
+    (--any? (looking-back (atilde-build-regexp it) start)
+            atilde-words)))
 
 (defun atilde-space ()
   (interactive)
