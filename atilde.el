@@ -7,13 +7,17 @@
 (defvar atilde-words '("a" "e" "i" "o" "u" "w" "z"
                        "od" "nad" "pod"))
 
-(defun atilde-build-regexp (word)
-  (format "\\(^%s\\| %s\\)" word word))
+(defvar atilde-regexp (format
+                       "\\(%s\\)"
+                       (--reduce-from (concat acc
+                                              "\\|^" it
+                                              "\\| " it)
+                                      (let ((f (car atilde-words)))
+                                        (concat "^" f "\\| " f))
+                                      (cdr atilde-words))))
 
 (defun atilde-insert-tilde? ()
-  (let ((start (line-beginning-position)))
-    (--any? (looking-back (atilde-build-regexp it) start)
-            atilde-words)))
+  (looking-back atilde-regexp (line-beginning-position)))
 
 (defun atilde-space ()
   (interactive)
