@@ -25,7 +25,7 @@
                               (s-join
                                "\\|"
                                (--map
-                                (s-replace "\\" "\\\\")
+                                (s-replace "\\" "\\\\" it)
                                 atilde-ignored-envs))
                               "\\)"))
 
