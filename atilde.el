@@ -22,11 +22,10 @@
 
 (defvar atilde-ignore-regexp (concat
                               "\\("
-                              (s-join
-                               "\\|"
-                               (--map
-                                (s-replace "\\" "\\\\" it)
-                                atilde-ignored-envs))
+                              (s-join "\\|"
+                                      (--map
+                                       (s-replace "\\" "\\\\" it)
+                                       atilde-ignored-envs))
                               "\\)"))
 
 (defun atilde-in-ignored-env? ()
