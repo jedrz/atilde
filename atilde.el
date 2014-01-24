@@ -38,8 +38,10 @@
 
 (defun atilde-space ()
   (interactive)
-  (insert (if (and (atilde-insert-tilde?)
-                   (not (atilde-in-ignored-env?))) "~" " ")))
+  (when (and (atilde-insert-tilde?)
+             (not (atilde-in-ignored-env?)))
+    (setq last-command-event ?~))
+  (call-interactively 'self-insert-command))
 
 (provide 'atilde)
 

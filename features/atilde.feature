@@ -22,3 +22,15 @@ Feature: Auto Tilde
     And I go to line "2"
     And I type "foo a bar od xyz"
     Then I should see "foo a bar od xyz"
+
+  Scenario: Auto Fill Mode enabled
+    When I turn on auto-fill-mode
+    And I set fill-column to 5
+    And I type "foo w bar od xyz bla "
+    Then I should see:
+    """
+    foo
+    w~bar
+    od~xyz
+    bla 
+    """
