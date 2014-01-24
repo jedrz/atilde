@@ -9,13 +9,8 @@
                        "od" "nad" "pod"))
 
 (defvar atilde-regexp (format
-                       "\\(%s\\)"
-                       (--reduce-from (concat acc
-                                              "\\|^" it
-                                              "\\| " it)
-                                      (let ((f (car atilde-words)))
-                                        (concat "^" f "\\| " f))
-                                      (cdr atilde-words))))
+                       "\\<\\(%s\\)"
+                       (s-join "\\|" atilde-words)))
 
 (defvar atilde-ignored-envs '("\\begin{displaymath}"
                               "\\begin{displaystyle}"))
