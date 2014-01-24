@@ -20,13 +20,12 @@
 (defvar atilde-ignored-envs '("\\begin{displaymath}"
                               "\\begin{displaystyle}"))
 
-(defvar atilde-ignore-regexp (concat
-                              "\\("
+(defvar atilde-ignore-regexp (format
+                              "\\(%s\\)"
                               (s-join "\\|"
                                       (--map
                                        (s-replace "\\" "\\\\" it)
-                                       atilde-ignored-envs))
-                              "\\)"))
+                                       atilde-ignored-envs))))
 
 (defun atilde-in-ignored-env? ()
   (save-excursion
