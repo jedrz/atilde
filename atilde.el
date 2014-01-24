@@ -33,13 +33,16 @@
           (setq stop t)))
       stop)))
 
-(defun atilde-insert-tilde? ()
+(defun atilde-insert-tilde-after-word? ()
   (looking-back atilde-regexp (line-beginning-position)))
+
+(defun atilde-insert-tilde? ()
+  (and (atilde-insert-tilde-after-word?)
+       (not (atilde-in-ignored-env?))))
 
 (defun atilde-space ()
   (interactive)
-  (when (and (atilde-insert-tilde?)
-             (not (atilde-in-ignored-env?)))
+  (when (atilde-insert-tilde?)
     (setq last-command-event ?~))
   (call-interactively 'self-insert-command))
 
