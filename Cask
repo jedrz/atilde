@@ -2,6 +2,8 @@
 
 (package-file "atilde.el")
 
+(depends-on "dash")
+(depends-on "s")
 (depends-on "expand-region")
 
 (development

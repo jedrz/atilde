@@ -3,6 +3,7 @@
 ;; Version: 0.0.0
 
 (require 'dash)
+(require 's)
 (require 'expand-region)
 
 (defvar atilde-words
