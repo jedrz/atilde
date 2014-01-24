@@ -44,13 +44,13 @@ See `atilde-ignored-envs' for a list of ignored environments."
           (setq stop t)))
       stop)))
 
-(defun atilde-insert-tilde-after-word? ()
-  "Check if tilde can be inserted at point."
+(defun atilde-check-prev-word? ()
+  "Check if previous word is the one from `atilde-words'."
   (looking-back atilde-regexp (line-beginning-position)))
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
-  (and (atilde-insert-tilde-after-word?)
+  (and (atilde-check-prev-word?)
        (not (atilde-in-ignored-env?))))
 
 (defun atilde-space ()
