@@ -49,9 +49,27 @@ See `atilde-ignored-envs' for a list of ignored environments."
   "Check if previous word is the one from `atilde-words'."
   (looking-back atilde-regexp (line-beginning-position)))
 
+(defun atilde-in-verb? ()
+  "Check if point is in verb.
+
+The point is considered to be in verb environment if is:
+- between the verb beginning and the ending delimiter,
+- after the verb beginning and there is no delimiter."
+  (save-excursion
+    (let* ((pattern "\\<verb\\(.\\)")
+           (point (point))
+           (start (re-search-backward pattern (line-beginning-position) t))
+           (verb-delim (match-string 1))
+           (end (when verb-delim
+                  (goto-char (+ (point) (length "verb.")))
+                  (re-search-forward verb-delim (line-end-position) t))))
+      (or (and start end (< start point) (< point end))
+          (and start (not end))))))
+
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
   (and (atilde-check-prev-word?)
+       (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
 
 (defun atilde-space ()

@@ -23,6 +23,20 @@ Feature: Auto Tilde
     And I type "foo a bar od xyz"
     Then I should see "foo a bar od xyz"
 
+  Scenario: Ignore verb - point in not yet ended verb environment
+    When I type "\verb+foo bar a od z "
+    Then I should see "\verb+foo bar a od z "
+
+  Scenario: Ignore verb - point before verb environment
+    When I type "\verb+foo bar a od z+"
+    And I go to point "1"
+    And I type "a zyx "
+    Then I should see "a~zyx \verb+foo bar a od z+"
+
+  Scenario: Ignore verb - point after verb environment
+    When I type "\verb+foo bar a od z+ a zyx"
+    Then I should see "\verb+foo bar a od z+ a~zyx"
+
   Scenario: Auto Fill Mode enabled
     When I turn on auto-fill-mode
     And I set fill-column to 5
