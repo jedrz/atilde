@@ -10,17 +10,17 @@
     "od" "nad" "pod")
   "A list of words after which tilde can be inserted.")
 
-(defvar atilde-regexp
-  (format
-   "\\<\\(%s\\)"
-   (s-join "\\|" atilde-words))
-  "A regexp detecting `atilde-words'.")
-
 (defvar atilde-ignored-envs
   '(("\\begin{displaymath}" . "\\end{displaymath}")
     ("\\begin{displaystyle}" . "\\end{displaystyle}"))
   "A list of ignored environments consisting of pairs with beginnings
 and endings of an environment.")
+
+(defun atilde-build-words-regexp ()
+  "Build regexp that matches any from `atilde-words'."
+  (format
+   "\\<\\(%s\\)"
+   (s-join "\\|" atilde-words)))
 
 (defun atilde-build-env-regexp ()
   "Build regexp that matches any beginning of an ignored environment."
@@ -80,7 +80,7 @@ The point is considered to be in verb environment if is:
 
 (defun atilde-check-prev-word? ()
   "Check if previous word is the one from `atilde-words'."
-  (looking-back atilde-regexp (line-beginning-position)))
+  (looking-back (atilde-build-words-regexp) (line-beginning-position)))
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
