@@ -18,18 +18,17 @@ and endings of an environment.")
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
-  (format
-   "\\<\\(%s\\)"
-   (s-join "\\|" atilde-words)))
+  (->> atilde-words
+    (s-join "\\|")
+    (format "\\<\\(%s\\)")))
 
 (defun atilde-build-env-regexp ()
   "Build regexp that matches any beginning of an ignored environment."
-  (format
-   "\\(%s\\)"
-   (s-join "\\|"
-           (--map
-            (regexp-quote (car it))
-            atilde-ignored-envs))))
+  (->> atilde-ignored-envs
+    (-map 'car)
+    (-map 'regexp-quote)
+    (s-join "\\|")
+    (format "\\(%s\\)")))
 
 (defun atilde-find-nearest-beg-env ()
   "Find nearest beginning of ignored environment.
