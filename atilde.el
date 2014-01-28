@@ -28,7 +28,7 @@ and endings of an environment.")
    "\\(%s\\)"
    (s-join "\\|"
            (--map
-            (s-replace "\\" "\\\\" (car it))
+            (regexp-quote (car it))
             atilde-ignored-envs))))
 
 (defun atilde-find-nearest-beg-env ()
