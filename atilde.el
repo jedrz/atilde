@@ -4,7 +4,6 @@
 
 (require 'dash)
 (require 's)
-(require 'expand-region)
 
 (defvar atilde-words
   '("a" "e" "i" "o" "u" "w" "z"
@@ -18,32 +17,49 @@
   "A regexp detecting `atilde-words'.")
 
 (defvar atilde-ignored-envs
-  '("\\begin{displaymath}"
-    "\\begin{displaystyle}")
-  "A list of ignored environments.")
+  '(("\\begin{displaymath}" . "\\end{displaymath}")
+    ("\\begin{displaystyle}" . "\\end{displaystyle}"))
+  "A list of ignored environments consisting of pairs with beginnings
+and endings of an environment.")
 
-(defvar atilde-ignore-regexp
+(defun atilde-build-env-regexp ()
+  "Build regexp that matches any beginning of an ignored environment."
   (format
    "\\(%s\\)"
    (s-join "\\|"
            (--map
-            (s-replace "\\" "\\\\" it)
-            atilde-ignored-envs)))
-  "A regexp to check if we are looking at the beginning of an environment.")
+            (s-replace "\\" "\\\\" (car it))
+            atilde-ignored-envs))))
+
+(defun atilde-find-nearest-beg-env ()
+  "Find nearest beginning of ignored environment.
+
+Returns a cons cell with position and string with ending environment
+that ends found environment.
+If nothing has been found returns nil."
+  (save-excursion
+    (when (re-search-backward (atilde-build-env-regexp) nil t)
+      (let ((env (match-string 1)))
+        (when env
+          (cons
+           (point)
+           (cdr (assoc env atilde-ignored-envs))))))))
+
+(defun atilde-find-nearest-end-env (env)
+  "Find nearest ending ENV."
+  (save-excursion
+    (search-forward env nil t)))
 
 (defun atilde-in-ignored-env? ()
   "Check if point is in an ignored environment.
 
 See `atilde-ignored-envs' for a list of ignored environments."
-  (save-excursion
-    (let ((expand-region-fast-keys-enabled nil)
-          (stop nil))
-      (while (and (not stop)
-                  (> (point) (point-min)))
-        (er/expand-region 1)
-        (when (looking-at atilde-ignore-regexp)
-          (setq stop t)))
-      stop)))
+  (-when-let (start-env (atilde-find-nearest-beg-env))
+    (let* ((start (car start-env))
+           (env (cdr start-env))
+           (end (atilde-find-nearest-end-env env)))
+      (or (and end (< start (point)) (< (point) end))
+          (and start (not end))))))
 
 (defun atilde-check-prev-word? ()
   "Check if previous word is the one from `atilde-words'."

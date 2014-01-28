@@ -4,7 +4,6 @@
 
 (depends-on "dash")
 (depends-on "s")
-(depends-on "expand-region")
 
 (development
  (depends-on "ecukes")

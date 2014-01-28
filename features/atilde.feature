@@ -23,6 +23,10 @@ Feature: Auto Tilde
     And I type "foo a bar od xyz"
     Then I should see "foo a bar od xyz"
 
+  Scenario: Ignore not ended environment
+    When I type "\begin{displaymath}od hmm xyz a foo"
+    Then I should see "\begin{displaymath}od hmm xyz a foo"
+
   Scenario: Ignore verb - point in not yet ended verb environment
     When I type "\verb+foo bar a od z "
     Then I should see "\verb+foo bar a od z "
