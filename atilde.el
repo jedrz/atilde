@@ -5,6 +5,19 @@
 (require 'dash)
 (require 's)
 
+(defvar atilde-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "SPC") 'atilde-space)
+    map)
+  "Keymap of `atilde-mode'.")
+
+(define-minor-mode atilde-mode
+  ""
+  :init-value nil
+  :lighter " ~"
+  :keymap atilde-mode-map
+  :require 'atilde)
+
 (defvar atilde-words
   '("a" "e" "i" "o" "u" "w" "z"
     "od" "nad" "pod")
