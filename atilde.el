@@ -90,6 +90,10 @@ The point is considered to be in verb environment if is:
       (or (and start end (< start point) (< point end))
           (and start (not end))))))
 
+(defun atilde-in-comment? ()
+  "Check if point is in a comment."
+  (nth 4 (syntax-ppss)))
+
 (defun atilde-check-prev-word? ()
   "Check if previous word is the one from `atilde-words'."
   (looking-back (atilde-build-words-regexp) (line-beginning-position)))
@@ -97,6 +101,7 @@ The point is considered to be in verb environment if is:
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
   (and (atilde-check-prev-word?)
+       (not (atilde-in-comment?))
        (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
 

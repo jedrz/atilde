@@ -41,6 +41,10 @@ Feature: Auto Tilde
     When I type "\verb+foo bar a od z+ a zyx"
     Then I should see "\verb+foo bar a od z+ a~zyx"
 
+  Scenario: Ignoring a comment
+    When I type "%%%% comment a od xyz z"
+    Then I should see "%%%% comment a od xyz z"
+
   Scenario: Auto Fill Mode enabled
     When I turn on auto-fill-mode
     And I set fill-column to 5
