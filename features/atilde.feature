@@ -1,5 +1,11 @@
 Feature: Auto Tilde
 
+  Background:
+    Given I am in buffer "*atilde*"
+    And The buffer is empty
+    And I turn on latex-mode
+    And I turn on atilde-mode
+
   Scenario: Insert ~ after one character word
     When I type "foo a bar z "
     Then I should see "foo a~bar z~"

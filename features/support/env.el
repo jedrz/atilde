@@ -14,9 +14,3 @@
 (require 'atilde)
 (require 'espuds)
 (require 'ert)
-
-(Before
- (switch-to-buffer (get-buffer-create "*atilde*"))
- (erase-buffer)
- (latex-mode)
- (local-set-key (kbd "SPC") 'atilde-space))
