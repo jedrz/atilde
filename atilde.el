@@ -21,13 +21,6 @@
     map)
   "Keymap of `atilde-mode'.")
 
-(define-minor-mode atilde-mode
-  ""
-  :init-value nil
-  :lighter " ~"
-  :keymap atilde-mode-map
-  :require 'atilde)
-
 (defvar atilde-words
   '("a" "e" "i" "o" "u" "w" "z"
     "od" "nad" "pod")
@@ -44,6 +37,18 @@ and endings of an environment.")
 (defface atilde-missing-tilde
   '((t (:background "Red")))
   "Face to mark missing tildes.")
+
+(define-minor-mode atilde-mode
+  "Toggle automatically inserting of tildes in buffer.
+
+With a prefix argument ARG, enable `atilde-mode' if ARG is positive,
+and disable it otherwise. If called from Lisp, enable `atilde-mode' mode
+if ARG is omitted or nil."
+  :init-value nil
+  :lighter " ~"
+  :keymap atilde-mode-map
+  :group 'atilde
+  :require 'atilde)
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
