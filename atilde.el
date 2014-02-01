@@ -5,6 +5,16 @@
 (require 'dash)
 (require 's)
 
+(defgroup atilde nil
+  "Automatically insert tildes in tex buffer."
+  :prefix "atilde-"
+  :group 'tools) ;; FIXME: change group
+
+(defgroup atilde-faces nil
+  "Faces for atilde."
+  :prefix "atilde-"
+  :group 'atilde)
+
 (defvar atilde-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "SPC") 'atilde-space)
@@ -28,6 +38,12 @@
     ("\\begin{displaystyle}" . "\\end{displaystyle}"))
   "A list of ignored environments consisting of pairs with beginnings
 and endings of an environment.")
+
+(defvar atilde-highlight-missing-tildes t)
+
+(defface atilde-missing-tilde
+  '((t (:background "Red")))
+  "Face to mark missing tildes.")
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
@@ -115,6 +131,40 @@ is inserted."
   (when (atilde-insert-tilde?)
     (setq last-command-event ?~))
   (call-interactively 'self-insert-command))
+
+(defun atilde-get-missing-tildes-positions ()
+  "Return positions of spaces where tilde should be inserted."
+  (let (space-pos)
+    (save-excursion
+     (goto-char (point-max))
+     (while (search-backward " " nil t)
+       (when (atilde-insert-tilde?)
+         (setq space-pos (append space-pos (list (point)))))))
+    (nreverse space-pos)))
+
+(defun atilde-add-overlays ()
+  "Add overlays for missing tildes."
+  (-each (atilde-get-missing-tildes-positions) 'atilde-add-overlay))
+
+(defun atilde-add-overlay (space-pos)
+  "Add overlay with warning face for SPACE-POS."
+  (let ((overlay (make-overlay space-pos (1+ space-pos))))
+    (overlay-put overlay 'atilde-overlay t)
+    (overlay-put overlay 'face 'atilde-missing-tilde)))
+
+(defun atilde-filter-overlays (overlays)
+  "Return all atilde overlays from OVERLAYS."
+  (--filter (overlay-get it 'atilde-overlay) overlays))
+
+(defun atilde-overlays-in (beg end)
+  "Return all atilde overlays between BEG and END."
+  (atilde-filter-overlays (overlays-in beg end)))
+
+(defun atilde-delete-overlays ()
+  "Remove all atilde overlays in the current buffer."
+  (save-restriction
+    (widen)
+    (-each (atilde-overlays-in (point-min) (point-max)) 'delete-overlay)))
 
 (provide 'atilde)
 
