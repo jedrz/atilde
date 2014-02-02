@@ -29,7 +29,7 @@
     (let ((overlays (sort (atilde-overlays-in (point-min) (point-max))
                           (lambda (o1 o2)
                             (< (overlay-start o1) (overlay-start o2)))))
-          (positions '(6 8 15)))
+          (positions (atilde-get-missing-tildes-positions)))
       (should overlays)
       (--each (-zip overlays positions)
         (let* ((overlay (car it))
