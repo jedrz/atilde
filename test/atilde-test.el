@@ -43,3 +43,12 @@
    (insert "a foo")
    (atilde-mode -1)
    (should-not (atilde-overlays-in (point-min) (point-max)))))
+
+(ert-deftest atilde-test/add-overlays-after-turning-on ()
+  (with-temp-buffer
+    (latex-mode)
+    (insert "a foo")
+    (atilde-mode)
+    (let* ((overlay (car (atilde-overlays-in (point-min) (point-max))))
+           (beg (overlay-start overlay)))
+      (should (= beg 2)))))

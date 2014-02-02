@@ -50,6 +50,7 @@ if ARG is omitted or nil."
   :group 'atilde
   :require 'atilde
   (if atilde-mode
+      (atilde-add-overlays)
       (add-hook 'after-change-functions 'atilde-handle-change nil t)
     (remove-hook 'after-change-functions 'atilde-handle-change t)
     (atilde-cleanup)))
