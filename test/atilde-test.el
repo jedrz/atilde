@@ -37,3 +37,9 @@
               (pos (cdr it)))
          (should (= beg pos))
          (should (= end (1+ pos))))))))
+
+(ert-deftest atilde-test/delete-overlays-after-turning-off ()
+  (atilde-test-with-temp-buffer
+   (insert "a foo")
+   (atilde-mode -1)
+   (should-not (atilde-overlays-in (point-min) (point-max)))))
