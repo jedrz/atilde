@@ -48,7 +48,10 @@ if ARG is omitted or nil."
   :lighter " ~"
   :keymap atilde-mode-map
   :group 'atilde
-  :require 'atilde)
+  :require 'atilde
+  (if atilde-mode
+      (add-hook 'after-change-functions 'atilde-handle-change nil t)
+    (remove-hook 'after-change-functions 'atilde-handle-change t)))
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
@@ -136,6 +139,12 @@ is inserted."
   (when (atilde-insert-tilde?)
     (setq last-command-event ?~))
   (call-interactively 'self-insert-command))
+
+(defun atilde-handle-change (beg end length)
+  "Remove all overlays and add again after each buffer change."
+  ;; FIXME: use params
+  (atilde-delete-overlays)
+  (atilde-add-overlays))
 
 (defun atilde-get-missing-tildes-positions ()
   "Return positions of spaces where tilde should be inserted."
