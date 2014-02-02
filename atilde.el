@@ -49,11 +49,13 @@ if ARG is omitted or nil."
   :keymap atilde-mode-map
   :group 'atilde
   :require 'atilde
-  (if atilde-mode
-      (atilde-add-overlays)
-      (add-hook 'after-change-functions 'atilde-handle-change nil t)
+  (cond
+   (atilde-mode
+    (atilde-add-overlays)
+    (add-hook 'after-change-functions 'atilde-handle-change nil t))
+   (t
     (remove-hook 'after-change-functions 'atilde-handle-change t)
-    (atilde-delete-overlays)))
+    (atilde-delete-overlays))))
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
