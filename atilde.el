@@ -74,32 +74,27 @@ if ARG is omitted or nil."
 (defun atilde-find-nearest-beg-env ()
   "Find nearest beginning of ignored environment.
 
-Returns a cons cell with position and string with ending environment
-that ends found environment.
-If nothing has been found returns nil."
-  (save-excursion
-    (when (re-search-backward (atilde-build-env-regexp) nil t)
-      (let ((env (match-string 1)))
-        (when env
-          (cons
-           (point)
-           (cdr (assoc env atilde-ignored-envs))))))))
+Returns string with ending environment that ends found environment."
+  (when (re-search-backward (atilde-build-env-regexp) nil t)
+    (let ((env (match-string 1)))
+      (when env
+        (cdr (assoc env atilde-ignored-envs))))))
 
 (defun atilde-find-nearest-end-env (env)
   "Find nearest ending ENV."
-  (save-excursion
-    (search-forward env nil t)))
+  (search-forward env nil t))
 
 (defun atilde-in-ignored-env? ()
   "Check if point is in an ignored environment.
 
 See `atilde-ignored-envs' for a list of ignored environments."
-  (-when-let (start-env (atilde-find-nearest-beg-env))
-    (let* ((start (car start-env))
-           (env (cdr start-env))
-           (end (atilde-find-nearest-end-env env)))
-      (or (and end (< start (point)) (< (point) end))
-          (and start (not end))))))
+  (save-excursion
+    (let ((point (point)))
+      (-when-let (end-env (atilde-find-nearest-beg-env))
+        (let ((start (point))
+              (end (atilde-find-nearest-end-env end-env)))
+          (or (and end (< start point) (< point end))
+              (not end)))))))
 
 (defun atilde-in-verb? ()
   "Check if point is in verb.

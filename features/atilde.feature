@@ -33,6 +33,10 @@ Feature: Auto Tilde
     When I type "\begin{displaymath}od hmm xyz a foo"
     Then I should see "\begin{displaymath}od hmm xyz a foo"
 
+  Scenario: Insert tildes after ended environment
+    When I type "\begin{displaymath}a foo\end{displaymath} a od foo"
+    Then I should see "\begin{displaymath}a foo\end{displaymath} a~od~foo"
+
   Scenario: Ignore verb - point in not yet ended verb environment
     When I type "\verb+foo bar a od z "
     Then I should see "\verb+foo bar a od z "
