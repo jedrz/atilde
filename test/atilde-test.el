@@ -23,8 +23,11 @@
          (should (= result real)))))))
 
 (ert-deftest atilde-test/overlays-positions ()
-  (atilde-test-with-temp-buffer
+  (with-temp-buffer
    (insert "foo a z bar od word")
+   ;; FIXME remove turning on latex- and atilde-mode here.
+   (latex-mode)
+   (atilde-mode)
    (let ((overlays (sort (atilde-overlays-in (point-min) (point-max))
                          (lambda (o1 o2)
                            (< (overlay-start o1) (overlay-start o2)))))
