@@ -144,25 +144,32 @@ is inserted."
     (setq last-command-event ?~))
   (call-interactively 'self-insert-command))
 
-(defun atilde-handle-change (beg end length)
-  "Remove all overlays and add again after each buffer change."
-  ;; FIXME: use params
-  (atilde-delete-overlays)
-  (atilde-add-overlays))
+(defun atilde-handle-change (beg end len)
+  "Add or remove overlays for given buffer change."
+  (if (= len 0)
+      (atilde-add-overlays beg end)     ; text added
+    (atilde-delete-overlays beg end)))  ; text removed
 
-(defun atilde-get-missing-tildes-positions ()
-  "Return positions of spaces where tilde should be inserted."
+(defun atilde-get-missing-tildes-positions (&optional beg end)
+  "Return positions of spaces where tilde should be inserted.
+
+If BEG and END are not nil then spaces are searched only between
+BEG and END."
+  (setq beg (or beg (point-min))
+        end (or end (point-max)))
   (let (space-pos)
     (save-excursion
-     (goto-char (point-max))
-     (while (search-backward " " nil t)
+     (goto-char end)
+     (while (search-backward " " beg t)
        (when (atilde-insert-tilde?)
          (setq space-pos (append space-pos (list (point)))))))
     (nreverse space-pos)))
 
-(defun atilde-add-overlays ()
-  "Add overlays for missing tildes."
-  (-each (atilde-get-missing-tildes-positions) 'atilde-add-overlay))
+(defun atilde-add-overlays (&optional beg end)
+  "Add overlays for missing tildes in the current buffer.
+
+If BEG and END are not nil then overlays are added only between BEG and END."
+  (-each (atilde-get-missing-tildes-positions beg end) 'atilde-add-overlay))
 
 (defun atilde-add-overlay (space-pos)
   "Add overlay with warning face for SPACE-POS."
@@ -178,11 +185,15 @@ is inserted."
   "Return all atilde overlays between BEG and END."
   (atilde-filter-overlays (overlays-in beg end)))
 
-(defun atilde-delete-overlays ()
-  "Remove all atilde overlays in the current buffer."
+(defun atilde-delete-overlays (&optional beg end)
+  "Remove all atilde overlays in the current buffer.
+
+If BEG and END are not nil then overlays are deleted only between BEG and END."
+  (setq beg (or beg (point-min))
+        end (or end (point-max)))
   (save-restriction
     (widen)
-    (-each (atilde-overlays-in (point-min) (point-max)) 'delete-overlay)))
+    (-each (atilde-overlays-in beg end) 'delete-overlay)))
 
 (provide 'atilde)
 
