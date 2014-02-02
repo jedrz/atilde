@@ -53,7 +53,7 @@ if ARG is omitted or nil."
       (atilde-add-overlays)
       (add-hook 'after-change-functions 'atilde-handle-change nil t)
     (remove-hook 'after-change-functions 'atilde-handle-change t)
-    (atilde-cleanup)))
+    (atilde-delete-overlays)))
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
@@ -147,10 +147,6 @@ is inserted."
   ;; FIXME: use params
   (atilde-delete-overlays)
   (atilde-add-overlays))
-
-(defun atilde-cleanup ()
-  "Remove all atilde overlays."
-  (atilde-delete-overlays))
 
 (defun atilde-get-missing-tildes-positions ()
   "Return positions of spaces where tilde should be inserted."
