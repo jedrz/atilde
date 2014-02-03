@@ -53,11 +53,17 @@ if ARG is omitted or nil."
   (cond
    (atilde-mode
     (when atilde-highlight-missing-tildes
-      (atilde-add-overlays)
+      ;; Add overlays for entire buffer when turning on.
+      (save-restriction
+        (widen)
+        (atilde-add-overlays))
       (add-hook 'after-change-functions 'atilde-handle-change nil t)))
    (t
     (remove-hook 'after-change-functions 'atilde-handle-change t)
-    (atilde-delete-overlays))))
+    ;; Remove overlays for entire buffer when turning off.
+    (save-restriction
+      (widen)
+      (atilde-delete-overlays)))))
 
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
@@ -188,9 +194,7 @@ If BEG and END are not nil then overlays are added only between BEG and END."
 If BEG and END are not nil then overlays are deleted only between BEG and END."
   (setq beg (or beg (point-min))
         end (or end (point-max)))
-  (save-restriction
-    (widen)
-    (-each (atilde-overlays-in beg end) 'delete-overlay)))
+  (-each (atilde-overlays-in beg end) 'delete-overlay))
 
 (provide 'atilde)
 

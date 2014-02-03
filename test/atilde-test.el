@@ -87,3 +87,25 @@
   (let ((atilde-highlight-missing-tildes nil))
     (atilde-test-with-text "foo a bar"
       (should-not (atilde-overlays-in (point-min) (point-max))))))
+
+(ert-deftest atilde-test/buffer-narrowing ()
+  "Test overlays after narrowing and widening a buffer."
+  (with-temp-buffer
+    (insert "a foo\ne foo\nu foo\n")
+    (goto-char (point-min))
+    (forward-line)
+    ;; After narrowing I should see 1 overlay.
+    (narrow-to-region (line-beginning-position) (line-end-position))
+    (latex-mode)
+    (atilde-mode)
+    (should (= (length (atilde-overlays-in (point-min) (point-max))) 1))
+    ;; After widening I should see 3 overlays.
+    (widen)
+    (should (= (length (atilde-overlays-in (point-min) (point-max))) 3))
+    ;; After narrowing and turning off the mode there should be no overlays.
+    (goto-char (point-min))
+    (forward-line)
+    (narrow-to-region (line-beginning-position) (line-end-position))
+    (atilde-mode -1)
+    (widen)
+    (should (= (length (atilde-overlays-in (point-min) (point-max))) 0))))
