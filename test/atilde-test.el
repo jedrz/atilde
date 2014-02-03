@@ -55,6 +55,20 @@
           (should (= beg pos))
           (should (= end (1+ pos))))))))
 
+(ert-deftest atilde-test/overlays-in ()
+  "Test overlays returned by `atilde-overlays-in'."
+  (with-temp-buffer
+    (insert "foo")
+    (atilde-add-overlay 2)
+    (let ((o1 (make-overlay 1 2))
+          (o2 (make-overlay 2 3)))
+      (overlay-put o1 'o1 t)
+      (overlay-put o2 'o2 t))
+    (let* ((atilde-overlays (atilde-overlays-in (point-min) (point-max)))
+           (overlay (car atilde-overlays)))
+      (should (= (length atilde-overlays) 1))
+      (should (eq (overlay-get overlay 'atilde-overlay) t)))))
+
 (ert-deftest atilde-test/delete-overlays-after-turning-off ()
   "Test if overlays are removed after turning off atilde mode."
   (atilde-test-with-text "a foo"
