@@ -23,6 +23,22 @@
               (real (cdr it)))
           (should (= result real)))))))
 
+(ert-deftest atilde-test/add-overlay ()
+  "Test `atilde-add-overlay' for adding an overlay."
+  (with-temp-buffer
+    (insert "foo")
+    (atilde-add-overlay 1)
+    (let* ((overlays (overlays-in (point-min) (point-max)))
+           (overlay (car overlays))
+           (properties (overlay-properties overlay)))
+      (should (= (length overlays) 1))
+      (should (= (length properties) 4)) ; because symbols and values are
+                                         ; counted
+      (should (eq (overlay-get overlay 'atilde-overlay) t))
+      (should (eq (overlay-get overlay 'face) 'atilde-missing-tilde))
+      (should (= (overlay-start overlay) 1))
+      (should (= (overlay-end overlay) 2)))))
+
 (ert-deftest atilde-test/overlays-positions ()
   "Test if overlays are properly placed."
   (atilde-test-with-text "foo a z bar od word"
