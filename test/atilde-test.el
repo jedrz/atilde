@@ -51,3 +51,9 @@
     (let* ((overlay (car (atilde-overlays-in (point-min) (point-max))))
            (beg (overlay-start overlay)))
       (should (= beg 2)))))
+
+(ert-deftest atilde-test/no-overlays ()
+  "Test if there are no overlays when `atilde-highlight-missing-tildes' is nil."
+  (let ((atilde-highlight-missing-tildes nil))
+    (atilde-test-with-text "foo a bar"
+      (should-not (atilde-overlays-in (point-min) (point-max))))))

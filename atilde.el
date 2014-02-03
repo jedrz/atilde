@@ -32,7 +32,8 @@
   "A list of ignored environments consisting of pairs with beginnings
 and endings of an environment.")
 
-(defvar atilde-highlight-missing-tildes t)
+(defvar atilde-highlight-missing-tildes t
+  "Non nil if missing tildes should be highlighted.")
 
 (defface atilde-missing-tilde
   '((t (:background "Red")))
@@ -51,8 +52,9 @@ if ARG is omitted or nil."
   :require 'atilde
   (cond
    (atilde-mode
-    (atilde-add-overlays)
-    (add-hook 'after-change-functions 'atilde-handle-change nil t))
+    (when atilde-highlight-missing-tildes
+      (atilde-add-overlays)
+      (add-hook 'after-change-functions 'atilde-handle-change nil t)))
    (t
     (remove-hook 'after-change-functions 'atilde-handle-change t)
     (atilde-delete-overlays))))
