@@ -165,8 +165,8 @@ BEG and END."
      (goto-char end)
      (while (search-backward " " beg t)
        (when (atilde-insert-tilde?)
-         (setq space-pos (append space-pos (list (point)))))))
-    (nreverse space-pos)))
+         (setq space-pos (cons (point) space-pos)))))
+    space-pos))
 
 (defun atilde-add-overlays (&optional beg end)
   "Add overlays for missing tildes in the current buffer.
