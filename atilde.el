@@ -15,33 +15,43 @@
   :prefix "atilde-"
   :group 'atilde)
 
+(defcustom atilde-words
+  '("a" "e" "i" "o" "u" "w" "z"
+    "od" "nad" "pod")
+  "A list of words after which tilde can be inserted."
+  :group 'atilde
+  :type '(repeat string))
+
+(defcustom atilde-between-regexps
+  '(("\\<[[:digit:]]+" . ".\\."))
+  "A list of regexps between which tilde should be inserted."
+  :group 'atilde
+  :type '(alist :key-type regexp :value-type regexp))
+
+(defcustom atilde-ignored-envs
+  '(("\\begin{displaymath}" . "\\end{displaymath}")
+    ("\\begin{displaystyle}" . "\\end{displaystyle}"))
+  "A list of ignored environments consisting of pairs with beginnings
+and endings of an environment."
+  :group 'atilde
+  :type '(alist :key-type string :value-type string))
+
+(defcustom atilde-highlight-missing-tildes t
+  "Set to non-nil if missing tildes should be highlighted."
+  :group 'atilde
+  :type 'boolean
+  :safe 'booleanp)
+
+(defface atilde-missing-tilde
+  '((t (:background "Red")))
+  "Face to mark missing tildes."
+  :group 'atilde-faces)
+
 (defvar atilde-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "SPC") 'atilde-space)
     map)
   "Keymap of `atilde-mode'.")
-
-(defvar atilde-words
-  '("a" "e" "i" "o" "u" "w" "z"
-    "od" "nad" "pod")
-  "A list of words after which tilde can be inserted.")
-
-(defvar atilde-between-regexps
-  '(("\\<[[:digit:]]+" . ".\\."))
-  "A list of regexps between which tilde should be inserted.")
-
-(defvar atilde-ignored-envs
-  '(("\\begin{displaymath}" . "\\end{displaymath}")
-    ("\\begin{displaystyle}" . "\\end{displaystyle}"))
-  "A list of ignored environments consisting of pairs with beginnings
-and endings of an environment.")
-
-(defvar atilde-highlight-missing-tildes t
-  "Non nil if missing tildes should be highlighted.")
-
-(defface atilde-missing-tilde
-  '((t (:background "Red")))
-  "Face to mark missing tildes.")
 
 (define-minor-mode atilde-mode
   "Toggle automatically inserting of tildes in buffer.
