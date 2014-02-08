@@ -69,6 +69,12 @@ if ARG is omitted or nil."
       (widen)
       (atilde-delete-overlays)))))
 
+(defconst atilde-whitespace-regexp "[ \t\n]+"
+  "Regexp matching spaces, tabulators and newlines.")
+
+(defconst atilde-not-whitespace-regexp "[^ \t\n]+"
+  "Regexp that doesn't match spaces, tabulators or newlines.")
+
 (defun atilde-build-words-regexp ()
   "Build regexp that matches any from `atilde-words'."
   (->> atilde-words
@@ -80,7 +86,7 @@ if ARG is omitted or nil."
 
 Between given regexps whitespace characters are also being matched."
   (->> atilde-between-regexps
-    (--map (concat (car it) "\\s-+" (cdr it)))
+    (--map (concat (car it) atilde-whitespace-regexp (cdr it)))
     (s-join "\\|")
     (format "\\(%s\\)")))
 
@@ -188,14 +194,15 @@ If the point is in an ignored environment (see
     (save-excursion
       (when (and
              ;; Search backward for nearest whitespace chars.
-             (re-search-backward "\\S-\\s-+"
+             (re-search-backward (concat atilde-not-whitespace-regexp
+                                         atilde-whitespace-regexp)
                                  (save-excursion
                                    (forward-line -1)
                                    (point))
                                  t)
              (atilde-insert-tilde?)
              ;; Search forward for whitespace chars again.
-             (re-search-forward "\\s-+" nil t))
+             (re-search-forward atilde-whitespace-regexp nil t))
         ;; Replace them with a single tilde.
         (replace-match "~")))
     (setq last-command-event last-command-event-copy))

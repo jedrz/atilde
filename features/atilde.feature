@@ -14,13 +14,41 @@ Feature: Auto Tilde
     When I type "od bar"
     Then I should see "od~bar"
 
-  Scenario: Insert ~ before shortcuts
-    When I type "foo 2014  r.  bar "
-    Then I should see "foo 2014~r.  bar "
-
   Scenario: Don't insert ~ after some words
     When I type "foo b word "
     Then I should see "foo b word "
+
+  Scenario: Insert ~ between some characters
+    When I type "foo 2014  r.  bar "
+    Then I should see "foo 2014~r.  bar "
+
+  Scenario: Insert ~ between some characters spanning two lines
+    When I type "2014"
+    And I press "RET"
+    And I type "r. "
+    Then I should see "2014~r. "
+
+  Scenario: Don't insert ~ between some characters not matching `atilde-between-regexp' spanning two lines
+    When I type "foo"
+    And I press "RET"
+    And I type "bar "
+    Then I should see:
+    """
+    foo
+    bar 
+    """
+
+  Scenario: Don't insert ~ between some characters spanning three lines
+    When I type "2014"
+    And I press "RET"
+    And I press "RET"
+    And I type "r. "
+    Then I should see:
+    """
+    2014
+
+    r. 
+    """
 
   Scenario: Ignore an environment
     When I insert:
