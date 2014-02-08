@@ -26,6 +26,10 @@
     "od" "nad" "pod")
   "A list of words after which tilde can be inserted.")
 
+(defvar atilde-between-regexps
+  '(("[[:digit:]]+" . ".\\."))
+  "A list of regexps between which tilde should be inserted.")
+
 (defvar atilde-ignored-envs
   '(("\\begin{displaymath}" . "\\end{displaymath}")
     ("\\begin{displaystyle}" . "\\end{displaystyle}"))
@@ -129,9 +133,30 @@ The point is considered to be in verb environment if is:
   "Check if previous word is the one from `atilde-words'."
   (looking-back (atilde-build-words-regexp) (line-beginning-position)))
 
+(defun atilde-insert-between? ()
+  "Check if point is between any pair of regexps from `atilde-between-regexps'."
+  (-any?
+   (lambda (regexp-pair)
+     (let ((beg-regexp (car regexp-pair))
+           (end-regexp (cdr regexp-pair)))
+       (and (save-excursion
+              (re-search-backward beg-regexp
+                                  (save-excursion
+                                    (forward-line -1)
+                                    (point))
+                                  t))
+            (save-excursion
+              (re-search-forward end-regexp
+                                 (save-excursion
+                                   (forward-line)
+                                   (point))
+                                 t)))))
+   atilde-between-regexps))
+
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
-  (and (atilde-check-prev-word?)
+  (and (or (atilde-check-prev-word?)
+           (atilde-insert-between?))
        (not (atilde-in-comment?))
        (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
@@ -145,6 +170,11 @@ is inserted."
   (interactive)
   (when (atilde-insert-tilde?)
     (setq last-command-event ?~))
+  (save-excursion
+    (backward-word)
+    (when (atilde-insert-tilde?)
+      (re-search-backward "\\s-" nil t)
+      (replace-match "~")))
   (call-interactively 'self-insert-command))
 
 (defun atilde-handle-change (beg end len)
