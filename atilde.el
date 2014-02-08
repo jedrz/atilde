@@ -174,8 +174,8 @@ The point is considered to be in verb environment if is:
        (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
 
-(defun atilde-space ()
-  "Insert tilde or space.
+(defun atilde-space (arg)
+  "Insert tilde or space ARG times.
 
 Tilde is inserted after `atilde-words' and also between any
 characters matching regular expression from
@@ -183,7 +183,7 @@ characters matching regular expression from
 
 If the point is in an ignored environment (see
 `atilde-ignored-envs') then always space is inserted."
-  (interactive)
+  (interactive "p")
   (let ((last-command-event-copy last-command-event))
     (save-excursion
       (when (and
@@ -199,9 +199,11 @@ If the point is in an ignored environment (see
         ;; Replace them with a single tilde.
         (replace-match "~")))
     (setq last-command-event last-command-event-copy))
-  (when (atilde-insert-tilde?)
-    (setq last-command-event ?~))
-  (call-interactively 'self-insert-command))
+  (if (atilde-insert-tilde?)
+      (progn
+        (setq last-command-event ?~)
+        (self-insert-command 1))
+    (self-insert-command arg)))
 
 (defun atilde-handle-change (beg end len)
   "Add or remove overlays for given buffer change."

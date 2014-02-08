@@ -75,4 +75,4 @@ Feature: Auto Tilde
     And I press "C-u 3 SPC"
     And I type "b"
     And I press "C-u 3 SPC"
-    Then I should see "a~~~b   "
+    Then I should see "a~b   "
