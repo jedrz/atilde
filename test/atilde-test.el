@@ -13,21 +13,21 @@
      ,@body))
 
 (ert-deftest atilde-test/get-missing-tildes-positions ()
-  "Test reported spaces."
-  (atilde-test-with-text "foo a z bar od word"
+  "Test reported whitespace characters."
+  (atilde-test-with-text "foo a  z bar od word 2014\n r."
     (let ((result-positions (atilde-get-missing-tildes-positions))
-          (real-positions '(6 8 15)))
+          (real-positions '((6 . 8) (9 . 10) (16 . 17) (26 . 28))))
       (should result-positions)
       (--each (-zip result-positions real-positions)
         (let ((result (car it))
               (real (cdr it)))
-          (should (= result real)))))))
+          (should (equal result real)))))))
 
 (ert-deftest atilde-test/add-overlay ()
   "Test `atilde-add-overlay' for adding an overlay."
   (with-temp-buffer
     (insert "foo")
-    (atilde-add-overlay 1)
+    (atilde-add-overlay '(1 . 3))
     (let* ((overlays (overlays-in (point-min) (point-max)))
            (overlay (car overlays))
            (properties (overlay-properties overlay)))
@@ -37,7 +37,7 @@
       (should (eq (overlay-get overlay 'atilde-overlay) t))
       (should (eq (overlay-get overlay 'face) 'atilde-missing-tilde))
       (should (= (overlay-start overlay) 1))
-      (should (= (overlay-end overlay) 2)))))
+      (should (= (overlay-end overlay) 3)))))
 
 (ert-deftest atilde-test/overlays-positions ()
   "Test if overlays are properly placed."
@@ -52,14 +52,14 @@
                (beg (overlay-start overlay))
                (end (overlay-end overlay))
                (pos (cdr it)))
-          (should (= beg pos))
-          (should (= end (1+ pos))))))))
+          (should (= beg (car pos)))
+          (should (= end (cdr pos))))))))
 
 (ert-deftest atilde-test/overlays-in ()
   "Test overlays returned by `atilde-overlays-in'."
   (with-temp-buffer
     (insert "foo")
-    (atilde-add-overlay 2)
+    (atilde-add-overlay '(2 . 3))
     (let ((o1 (make-overlay 1 2))
           (o2 (make-overlay 2 3)))
       (overlay-put o1 'o1 t)

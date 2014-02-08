@@ -160,15 +160,23 @@ The point is considered to be in verb environment if is:
 
 (defun atilde-check-prev-word? ()
   "Check if previous word is the one from `atilde-words'."
-  (looking-back (atilde-build-words-regexp) (line-beginning-position)))
+  (save-excursion
+    (skip-chars-backward " \n\t")
+    (looking-back (atilde-build-words-regexp) (line-beginning-position))))
 
 (defun atilde-insert-between? ()
   "Check if point is between any pair of regexps from `atilde-between-regexps'."
   (save-excursion
     (and (re-search-backward (atilde-build-between-before-regexp)
+                             ;; Take into account text up to first occurrence
+                             ;; of whitespace character only.
                              (save-excursion
-                               (forward-line -1)
-                               (point))
+                               (skip-chars-backward " \t\n")
+                               (re-search-backward atilde-whitespace-regexp
+                                                   (save-excursion
+                                                     (forward-line -1)
+                                                     (point))
+                                                   t))
                              t)
          (looking-at (atilde-build-between-regexp)))))
 
@@ -219,19 +227,28 @@ If the point is in an ignored environment (see
     (atilde-delete-overlays beg end)))  ; text removed
 
 (defun atilde-get-missing-tildes-positions (&optional beg end)
-  "Return positions of spaces where tilde should be inserted.
+  "Return positions of whitespace characters where tilde should be inserted.
+
+Returned positions are cons cells specifying regions which should
+be replaced with a single tilde character.
 
 If BEG and END are not nil then spaces are searched only between
 BEG and END."
   (setq beg (or beg (point-min))
         end (or end (point-max)))
-  (let (space-pos)
+  (let (positions)
     (save-excursion
-     (goto-char end)
-     (while (search-backward " " beg t)
-       (when (atilde-insert-tilde?)
-         (setq space-pos (cons (point) space-pos)))))
-    space-pos))
+      (goto-char beg)
+      (while (re-search-forward atilde-whitespace-regexp end t)
+        (when (save-match-data
+                (atilde-insert-tilde?))
+          (let ((region (cons
+                         ;; Subtract the length of found whitespace characters
+                         ;; since the point is located at the end of them.
+                         (- (point) (length (match-string 0)))
+                         (point))))
+            (setq positions (cons region positions))))))
+    (nreverse positions)))
 
 (defun atilde-add-overlays (&optional beg end)
   "Add overlays for missing tildes in the current buffer.
@@ -239,9 +256,12 @@ BEG and END."
 If BEG and END are not nil then overlays are added only between BEG and END."
   (-each (atilde-get-missing-tildes-positions beg end) 'atilde-add-overlay))
 
-(defun atilde-add-overlay (space-pos)
-  "Add overlay with warning face for SPACE-POS."
-  (let ((overlay (make-overlay space-pos (1+ space-pos))))
+(defun atilde-add-overlay (position)
+  "Add overlay with warning face for POSITION.
+
+POSITION should be a cons cell specifying the beginning and the
+end of a new overlay."
+  (let ((overlay (make-overlay (car position) (cdr position))))
     (overlay-put overlay 'atilde-overlay t)
     (overlay-put overlay 'face 'atilde-missing-tilde)))
 
