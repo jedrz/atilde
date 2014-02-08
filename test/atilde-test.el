@@ -1,8 +1,6 @@
+(require 'atilde)
 (require 'ert)
 (require 'dash)
-
-;; FIXME: replace the way of loading package
-(load (expand-file-name "atilde.el"))
 
 (defmacro atilde-test-with-text (text &rest body)
   (declare (indent 1))
