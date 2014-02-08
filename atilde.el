@@ -69,6 +69,9 @@ if ARG is omitted or nil."
       (widen)
       (atilde-delete-overlays)))))
 
+(defconst atilde-whitespace-string " \t\n"
+  "A string to use in `skip-chars-*' functions.")
+
 (defconst atilde-whitespace-regexp "[ \t\n]+"
   "Regexp matching spaces, tabulators and newlines.")
 
@@ -161,7 +164,7 @@ The point is considered to be in verb environment if is:
 (defun atilde-check-prev-word? ()
   "Check if previous word is the one from `atilde-words'."
   (save-excursion
-    (skip-chars-backward " \n\t")
+    (skip-chars-backward atilde-whitespace-string)
     (looking-back (atilde-build-words-regexp) (line-beginning-position))))
 
 (defun atilde-insert-between? ()
@@ -171,7 +174,7 @@ The point is considered to be in verb environment if is:
                              ;; Take into account text up to first occurrence
                              ;; of whitespace character only.
                              (save-excursion
-                               (skip-chars-backward " \t\n")
+                               (skip-chars-backward atilde-whitespace-string)
                                (re-search-backward atilde-whitespace-regexp
                                                    (save-excursion
                                                      (forward-line -1)
