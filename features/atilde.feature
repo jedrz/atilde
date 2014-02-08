@@ -15,8 +15,8 @@ Feature: Auto Tilde
     Then I should see "od~bar"
 
   Scenario: Insert ~ before shortcuts
-    When I type "2014 r. "
-    Then I should see "2014~r. "
+    When I type "foo 2014  r.  bar "
+    Then I should see "foo 2014~r.  bar "
 
   Scenario: Don't insert ~ after some words
     When I type "foo b word "

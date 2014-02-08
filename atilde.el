@@ -27,7 +27,7 @@
   "A list of words after which tilde can be inserted.")
 
 (defvar atilde-between-regexps
-  '(("[[:digit:]]+" . ".\\."))
+  '(("\\<[[:digit:]]+" . ".\\."))
   "A list of regexps between which tilde should be inserted.")
 
 (defvar atilde-ignored-envs
@@ -74,6 +74,29 @@ if ARG is omitted or nil."
   (->> atilde-words
     (s-join "\\|")
     (format "\\<\\(%s\\)")))
+
+(defun atilde-build-between-regexp ()
+  "Buld regexp that matches any pair from `atilde-between-regexps'.
+
+Between given regexps whitespace characters are also being matched."
+  (->> atilde-between-regexps
+    (--map (concat (car it) "\\s-+" (cdr it)))
+    (s-join "\\|")
+    (format "\\(%s\\)")))
+
+(defun atilde-build-between-before-regexp ()
+  "Buld regexp that matches any first elem from `atilde-between-regexps'."
+  (->> atilde-between-regexps
+    (-map 'car)
+    (s-join "\\|")
+    (format "\\(%s\\)")))
+
+(defun atilde-build-between-after-regexp ()
+  "Buld regexp that matches any second elem from `atilde-between-regexps'."
+  (->> atilde-between-regexps
+    (-map 'cdr)
+    (s-join "\\|")
+    (format "\\(%s\\)")))
 
 (defun atilde-build-env-regexp ()
   "Build regexp that matches any beginning of an ignored environment."
@@ -135,23 +158,13 @@ The point is considered to be in verb environment if is:
 
 (defun atilde-insert-between? ()
   "Check if point is between any pair of regexps from `atilde-between-regexps'."
-  (-any?
-   (lambda (regexp-pair)
-     (let ((beg-regexp (car regexp-pair))
-           (end-regexp (cdr regexp-pair)))
-       (and (save-excursion
-              (re-search-backward beg-regexp
-                                  (save-excursion
-                                    (forward-line -1)
-                                    (point))
-                                  t))
-            (save-excursion
-              (re-search-forward end-regexp
-                                 (save-excursion
-                                   (forward-line)
-                                   (point))
-                                 t)))))
-   atilde-between-regexps))
+  (save-excursion
+    (and (re-search-backward (atilde-build-between-before-regexp)
+                             (save-excursion
+                               (forward-line -1)
+                               (point))
+                             t)
+         (looking-at (atilde-build-between-regexp)))))
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
@@ -164,17 +177,30 @@ The point is considered to be in verb environment if is:
 (defun atilde-space ()
   "Insert tilde or space.
 
-Tilde is inserted after `atilde-words'. If the point is in an
-ignored environment (see `atilde-ignored-envs') then always space
-is inserted."
+Tilde is inserted after `atilde-words' and also between any
+characters matching regular expression from
+`atilde-between-regexp' variable.
+
+If the point is in an ignored environment (see
+`atilde-ignored-envs') then always space is inserted."
   (interactive)
+  (let ((last-command-event-copy last-command-event))
+    (save-excursion
+      (when (and
+             ;; Search backward for nearest whitespace chars.
+             (re-search-backward "\\S-\\s-+"
+                                 (save-excursion
+                                   (forward-line -1)
+                                   (point))
+                                 t)
+             (atilde-insert-tilde?)
+             ;; Search forward for whitespace chars again.
+             (re-search-forward "\\s-+" nil t))
+        ;; Replace them with a single tilde.
+        (replace-match "~")))
+    (setq last-command-event last-command-event-copy))
   (when (atilde-insert-tilde?)
     (setq last-command-event ?~))
-  (save-excursion
-    (backward-word)
-    (when (atilde-insert-tilde?)
-      (re-search-backward "\\s-" nil t)
-      (replace-match "~")))
   (call-interactively 'self-insert-command))
 
 (defun atilde-handle-change (beg end len)
