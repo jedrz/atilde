@@ -75,7 +75,7 @@ if ARG is omitted or nil."
 (defconst atilde-whitespace-regexp "[ \t\n]+"
   "Regexp matching spaces, tabulators and newlines.")
 
-(defconst atilde-not-whitespace-regexp "[^ \t\n]+"
+(defconst atilde-not-whitespace-regexp "[^ \t\n]"
   "Regexp that doesn't match spaces, tabulators or newlines.")
 
 (defun atilde-build-words-regexp ()
@@ -205,12 +205,17 @@ If the point is in an ignored environment (see
     (save-excursion
       (when (and
              ;; Search backward for nearest whitespace chars.
-             (re-search-backward (concat atilde-not-whitespace-regexp
-                                         atilde-whitespace-regexp)
-                                 (save-excursion
-                                   (forward-line -1)
-                                   (point))
-                                 t)
+             (let ((result (re-search-backward
+                            (concat atilde-not-whitespace-regexp
+                                    atilde-whitespace-regexp)
+                            (save-excursion
+                              (forward-line -1)
+                              (point))
+                            t)))
+               ;; Skip first non-whitespace character matched by above regexp.
+               (when (not (eobp))
+                 (forward-char))
+               result)
              (atilde-insert-tilde?)
              ;; Search forward for whitespace chars again.
              (re-search-forward atilde-whitespace-regexp nil t))

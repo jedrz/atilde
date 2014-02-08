@@ -14,6 +14,13 @@ Feature: Auto Tilde
     When I type "od bar"
     Then I should see "od~bar"
 
+  Scenario: Insert ~ only once after a word if space is pressed multiple times
+    When I type "a"
+    And I press "SPC"
+    And I press "SPC"
+    And I press "SPC"
+    Then I should see "a~  "
+
   Scenario: Don't insert ~ after some words
     When I type "foo b word "
     Then I should see "foo b word "
