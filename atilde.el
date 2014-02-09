@@ -137,6 +137,9 @@ if ARG is omitted or nil."
       (widen)
       (atilde-delete-overlays)))))
 
+(defconst atilde-tilde "~"
+  "A tilde character.")
+
 (defconst atilde-whitespace-string " \t\n"
   "A string to use in `skip-chars-*' functions.")
 
@@ -288,7 +291,7 @@ If the point is in an ignored environment (see
              ;; Search forward for whitespace chars again.
              (re-search-forward atilde-whitespace-regexp nil t))
         ;; Replace them with a single tilde.
-        (replace-match "~")))
+        (replace-match atilde-tilde)))
     (setq last-command-event last-command-event-copy))
   (if (atilde-insert-tilde?)
       (progn
@@ -402,7 +405,7 @@ characters without asking for permission."
         (end (cdr position)))
     (delete-region beg end)
     (goto-char beg)
-    (insert "~")))
+    (insert atilde-tilde)))
 
 (provide 'atilde)
 
