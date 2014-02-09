@@ -1,6 +1,62 @@
-;;; atilde.el --- auto tilde
+;;; atilde.el --- Automatically insert ~ after some words
 
-;; Version: 0.0.0
+;; Copyright (C) 2014 Łukasz Jędrzejewski
+
+;; Author: Łukasz Jędrzejewski <jedrzejewskiluk@gmail.com>
+;; URL: https://github.com/jedrz/atilde
+;; Version: dev
+;; Keywords: convenience
+;; Package-Requires: ((dash "1.2.0") (s "1.2.0"))
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Automatically insert a single tilde after or between some words.
+
+;; To quickly start up put this file somewhere in your `load-path' and add the
+;; following lines in your .emacs:
+
+;;     (require 'atilde)
+;;     (add-hook 'latex-mode-hook 'atilde-mode)
+
+;; With `atilde-mode' enabled, pressing the space key insert a hard space
+;; (tilde character) after Polish vowels or some short words.  Tildes are
+;; also inserted between some words like: 2014~r.
+
+;; This package is indented to use in LaTeX buffers since some environments
+;; surrounding the cursor are ignored and tildes are never inserted
+;; automatically.
+
+;; All missing tildes can be inserted in entire buffer with
+;; `atilde-query-replace' command.
+
+;; Positions of missing tildes are marked by default in red color.
+
+;; To add new words after or between which tildes should be inserted, add a new
+;; environment as ignored one or disable highlighting positions of missing
+;; tildes do:
+
+;;     M-x customize-group atilde RET
+
+;; For a more descriptive instructions check out:
+
+;;     https://github.com/jedrz/atilde
+
+;;; Code:
 
 (require 'dash)
 (require 's)
