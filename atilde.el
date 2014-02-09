@@ -87,8 +87,10 @@
 (defcustom atilde-ignored-envs
   '(("\\begin{displaymath}" . "\\end{displaymath}")
     ("\\begin{displaystyle}" . "\\end{displaystyle}"))
-  "A list of ignored environments consisting of pairs with beginnings
-and endings of an environment."
+  "A list of ignored environments.
+
+Each cons cell consists of pairs with beginnings and endings of
+an environment."
   :group 'atilde
   :type '(alist :key-type string :value-type string))
 
@@ -145,13 +147,13 @@ if ARG is omitted or nil."
   "Regexp that doesn't match spaces, tabulators or newlines.")
 
 (defun atilde-build-words-regexp ()
-  "Build regexp that matches any from `atilde-words'."
+  "Build regexp matching any from `atilde-words'."
   (->> atilde-words
     (s-join "\\|")
     (format "\\<\\(%s\\)")))
 
 (defun atilde-build-between-regexp ()
-  "Buld regexp that matches any pair from `atilde-between-regexps'.
+  "Buld regexp matching any pair from `atilde-between-regexps'.
 
 Between given regexps whitespace characters are also being matched."
   (->> atilde-between-regexps
@@ -160,21 +162,21 @@ Between given regexps whitespace characters are also being matched."
     (format "\\(%s\\)")))
 
 (defun atilde-build-between-before-regexp ()
-  "Buld regexp that matches any first elem from `atilde-between-regexps'."
+  "Buld regexp matching any first elem from `atilde-between-regexps'."
   (->> atilde-between-regexps
     (-map 'car)
     (s-join "\\|")
     (format "\\(%s\\)")))
 
 (defun atilde-build-between-after-regexp ()
-  "Buld regexp that matches any second elem from `atilde-between-regexps'."
+  "Buld regexp matching any second elem from `atilde-between-regexps'."
   (->> atilde-between-regexps
     (-map 'cdr)
     (s-join "\\|")
     (format "\\(%s\\)")))
 
 (defun atilde-build-env-regexp ()
-  "Build regexp that matches any beginning of an ignored environment."
+  "Build regexp matching any beginning of an ignored environment."
   (->> atilde-ignored-envs
     (-map 'car)
     (-map 'regexp-quote)
@@ -295,7 +297,7 @@ If the point is in an ignored environment (see
     (self-insert-command arg)))
 
 (defun atilde-handle-change (beg end len)
-  "Add or remove overlays for given buffer change."
+  "Add or remove overlays for given buffer change (BEG, END and LEN)."
   (if (= len 0)
       (atilde-add-overlays beg end)     ; text added
     (atilde-delete-overlays beg end)))  ; text removed
@@ -381,6 +383,10 @@ If BEG and END are not nil then overlays are deleted only between BEG and END."
   (-each (atilde-overlays-in beg end) 'delete-overlay))
 
 (defun atilde-query-replace (&optional force)
+  "Insert all missing tildes into the current buffer.
+
+With a prefix argument (FORCE) replace all proper whitespace
+characters without asking for permission."
   (interactive "P")
   (if force
       (progn
@@ -388,7 +394,7 @@ If BEG and END are not nil then overlays are deleted only between BEG and END."
           (save-excursion
             (-each marker-pairs 'atilde-replace-whitespace))
           (atilde-discard-markers marker-pairs)))
-    (error "Query replacing not implemented yet.")))
+    (error "Query replacing not implemented yet")))
 
 (defun atilde-replace-whitespace (position)
   "Replace text at given POSITION with single tilde."
