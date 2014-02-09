@@ -100,6 +100,11 @@ an environment."
   :type 'boolean
   :safe 'booleanp)
 
+(defcustom atilde-mode-line-lighter " ~"
+  "A mode line lighter string of `atilde-mode'."
+  :group 'atilde
+  :type 'string)
+
 (defface atilde-missing-tilde
   '((t (:background "Red")))
   "Face to mark missing tildes."
@@ -118,7 +123,7 @@ With a prefix argument ARG, enable `atilde-mode' if ARG is positive,
 and disable it otherwise. If called from Lisp, enable `atilde-mode' mode
 if ARG is omitted or nil."
   :init-value nil
-  :lighter " ~"
+  :lighter atilde-mode-line-lighter
   :keymap atilde-mode-map
   :group 'atilde
   :require 'atilde
