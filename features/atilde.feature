@@ -94,6 +94,29 @@ Feature: Auto Tilde
     When I type "%%%% comment a od xyz z"
     Then I should see "%%%% comment a od xyz z"
 
+  Scenario: Replace all proper whitespace characters with single command
+    When I insert:
+    """
+    a foo od   bar
+    2014 r.
+    2015
+    r.
+    """
+    And I go to point "3"
+    And I start an action chain
+    And I press "C-u"
+    And I press "M-x"
+    And I type "atilde-query-replace"
+    And I execute the action chain
+    Then I should see:
+    """
+    a~foo od~bar
+    2014~r.
+    2015~r.
+    """
+    # FIXME: Shouldn't the cursor point at 3?
+    And The cursor should be at point "2"
+
   Scenario: Auto Fill Mode enabled
     When I turn on auto-fill-mode
     And I set fill-column to 5

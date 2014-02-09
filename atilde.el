@@ -268,6 +268,31 @@ BEG and END."
             (setq positions (cons region positions))))))
     (nreverse positions)))
 
+(defun atilde-get-missing-tildes-positions-as-markers (&optional beg end)
+  "Return marker pairs where whitespace characters should be replaced.
+
+If BEG and END are not nil then spaces are searched only between
+BEG and END."
+  (let ((positions (atilde-get-missing-tildes-positions beg end)))
+    (-map (lambda (position)
+            (let ((m-beg (make-marker))
+                  (m-end (make-marker)))
+              (set-marker m-beg (car position))
+              (set-marker m-end (cdr position))
+              (cons m-beg m-end)))
+          positions)))
+
+(defun atilde-discard-markers (marker-pairs)
+  "Set each marker in MARKER-PAIRS to nil.
+
+Allow not needed markers to be garbage collected."
+  (-each marker-pairs 'atilde-discard-marker))
+
+(defun atilde-discard-marker (marker-pair)
+  "Set markers in MARKER-PAIR to nil."
+  (set-marker (car marker-pair) nil)
+  (set-marker (cdr marker-pair) nil))
+
 (defun atilde-add-overlays (&optional beg end)
   "Add overlays for missing tildes in the current buffer.
 
@@ -298,6 +323,24 @@ If BEG and END are not nil then overlays are deleted only between BEG and END."
   (setq beg (or beg (point-min))
         end (or end (point-max)))
   (-each (atilde-overlays-in beg end) 'delete-overlay))
+
+(defun atilde-query-replace (&optional force)
+  (interactive "P")
+  (if force
+      (progn
+        (let ((marker-pairs (atilde-get-missing-tildes-positions-as-markers)))
+          (save-excursion
+            (-each marker-pairs 'atilde-replace-whitespace))
+          (atilde-discard-markers marker-pairs)))
+    (error "Query replacing not implemented yet.")))
+
+(defun atilde-replace-whitespace (position)
+  "Replace text at given POSITION with single tilde."
+  (let ((beg (car position))
+        (end (cdr position)))
+    (delete-region beg end)
+    (goto-char beg)
+    (insert "~")))
 
 (provide 'atilde)
 

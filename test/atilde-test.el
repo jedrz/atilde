@@ -21,6 +21,27 @@
               (real (cdr it)))
           (should (equal result real)))))))
 
+(ert-deftest atilde-test/get-missing-tildes-positions-as-markers ()
+  "Test whether markers match corresponding positions."
+  (atilde-test-with-text "foo a z bar od word"
+    (let ((marker-pairs (atilde-get-missing-tildes-positions-as-markers))
+          (positions (atilde-get-missing-tildes-positions)))
+      (should marker-pairs)
+      (--each (-zip marker-pairs positions)
+        (let ((marker-pair (car it))
+              (position (cdr it)))
+          (should (= (car marker-pair) (car position)))
+          (should (= (cdr marker-pair) (cdr position))))))))
+
+(ert-deftest atilde-test/discard-markers ()
+  "Test whether markers are set to nil."
+  (atilde-test-with-text "foo a z bar od word"
+    (let ((marker-pairs (atilde-get-missing-tildes-positions-as-markers)))
+      (atilde-discard-markers marker-pairs)
+      (--each marker-pairs
+        (should-not (marker-position (car it)))
+        (should-not (marker-position (cdr it)))))))
+
 (ert-deftest atilde-test/add-overlay ()
   "Test `atilde-add-overlay' for adding an overlay."
   (with-temp-buffer
