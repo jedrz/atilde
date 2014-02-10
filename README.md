@@ -45,7 +45,7 @@ regexp to `atilde-after-regexps` list. For example to have tildes be inserted
 after every single, two and three letter words u can do:
 
 ```scheme
-(add-to-list atilde-after-regexps "\\w\\{1,3\\}")
+(add-to-list 'atilde-after-regexps "\\w\\{1,3\\}")
 ```
 
 On the other hand, to add a new pair of words between which tildes can be
