@@ -153,29 +153,6 @@ if ARG is omitted or nil."
 (defconst atilde-not-whitespace-regexp "[^ \t\n]"
   "Regexp that doesn't match spaces, tabulators or newlines.")
 
-(defun atilde-build-between-regexp ()
-  "Buld regexp matching any pair from `atilde-between-regexps'.
-
-Between given regexps whitespace characters are also being matched."
-  (->> atilde-between-regexps
-    (--map (concat (car it) atilde-whitespace-regexp (cdr it)))
-    (s-join "\\|")
-    (format "\\(%s\\)")))
-
-(defun atilde-build-between-before-regexp ()
-  "Buld regexp matching any first elem from `atilde-between-regexps'."
-  (->> atilde-between-regexps
-    (-map 'car)
-    (s-join "\\|")
-    (format "\\(%s\\)")))
-
-(defun atilde-build-between-after-regexp ()
-  "Buld regexp matching any second elem from `atilde-between-regexps'."
-  (->> atilde-between-regexps
-    (-map 'cdr)
-    (s-join "\\|")
-    (format "\\(%s\\)")))
-
 (defun atilde-in-ignored-env? ()
   "Check if point is in an ignored environment.
 
@@ -226,19 +203,30 @@ All whitespace characters before the cursor are ignored."
 
 (defun atilde-insert-between? ()
   "Check if point is between any pair of regexps from `atilde-between-regexps'."
-  (save-excursion
-    (and (re-search-backward (atilde-build-between-before-regexp)
-                             ;; Take into account text up to first occurrence
-                             ;; of whitespace character only.
-                             (save-excursion
-                               (skip-chars-backward atilde-whitespace-string)
-                               (re-search-backward atilde-whitespace-regexp
-                                                   (save-excursion
-                                                     (forward-line -1)
-                                                     (point))
-                                                   t))
-                             t)
-         (looking-at (atilde-build-between-regexp)))))
+  (-any?
+   (lambda (regexp-pair)
+     (save-excursion
+       (and
+        (re-search-backward
+         (car regexp-pair)
+         ;; Take into account text up to first occurrence
+         ;; of whitespace character only.
+         (save-excursion
+           (skip-chars-backward atilde-whitespace-string)
+           (re-search-backward atilde-whitespace-regexp
+                               (save-excursion
+                                 (forward-line -1)
+                                 (point))
+                               t))
+         t)
+        (looking-at (atilde-build-between-regexp regexp-pair)))))
+   atilde-between-regexps))
+
+(defun atilde-build-between-regexp (regexp-pair)
+  "Buld regexp matching REGEXP-PAIR'.
+
+Between given regexp whitespace characters are also being matched."
+  (concat (car regexp-pair) atilde-whitespace-regexp (cdr regexp-pair)))
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
@@ -253,7 +241,7 @@ All whitespace characters before the cursor are ignored."
 
 Tilde is inserted after or between any characters matching
 regular expressions from `atilde-after-regexps' and
-`atilde-between-regexp' variables.
+`atilde-between-regexps' variables.
 
 If the point is in an ignored environment (see
 `atilde-ignored-envs') then always space is inserted."
