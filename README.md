@@ -16,8 +16,13 @@ following lines in your .emacs:
 ## Description
 
 With `atilde-mode` enabled, pressing the *space* key insert a hard space (tilde
-character) after Polish vowels or two letter words. Tildes are also inserted
-between some words like: `2014~r.`.
+character) after some Polish expressions:
+
+* conjunctions,
+* all two letter words,
+* shortcuts like: `mgr`, `inż.`, `nr`,
+* between numbers: `100~000`,
+* between numbers and shortcuts: `2014~r.`, `XV w.`, `50~kg`.
 
 This package is indented to use in *LaTeX* buffers since some environments
 (such as `displaymath` or `verb`) surrounding the cursor are ignored and tildes
@@ -40,7 +45,7 @@ regexp to `atilde-after-regexps` list. For example to have tildes be inserted
 after every single, two and three letter words u can do:
 
 ```scheme
-(setq atilde-after-regexps '("\\w\\{1,3\\}")')
+(add-to-list atilde-after-regexps "\\w\\{1,3\\}")
 ```
 
 On the other hand, to add a new pair of words between which tildes can be

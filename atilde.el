@@ -52,6 +52,10 @@
 
 ;;     M-x customize-group atilde RET
 
+;; Some (most) regexps were copied from:
+
+;;     ftp://ftp.gust.org.pl/pub/GUST/contrib/GUSTPROG/porzadki.pl
+
 ;; For a more descriptive instructions check out:
 
 ;;     https://github.com/jedrz/atilde
@@ -71,14 +75,32 @@
   :prefix "atilde-"
   :group 'atilde)
 
+;; Note: every alternative is enclosed by a group not to match the previous
+;; string since below regexps are concatenated with other regexps.
+
 (defcustom atilde-after-regexps
-  '("[aeiouwz]" "\\w\\{2\\}")
+  (list
+   "[aeiouwz]"
+   "\\w\\{2\\}"                        ; two letter words
+   (concat
+    "\\("
+    "mgr\\|inż\\.\\|dr\\|prof\\.\\|hab\\.\\|bp\\|ks\\.\\|o+\\.\\|św\\.\\|"
+    "prez\\.\\|przew\\.\\|red\\.\\|min\\.\\|gen\\.\\|płk\\|mjr\\|kpt\\.\\|"
+    "hab\\|ks\\|o+\\|św\\|prez\\|przew\\|red\\|min\\|gen\\|"
+    "tab\\.\\|tabl\\.\\|ry[cs]\\.\\|rozdz\\.\\|nr\\|"
+    "[stz]\\.\\|ss\\.\\|vol\\.\\|art\\.)"
+    "\\)"))
   "A list of regexps after which tilde can be inserted."
   :group 'atilde
   :type '(repeat regexp))
 
 (defcustom atilde-between-regexps
-  '(("\\<[[:digit:]]+" . ".\\."))
+  '(("\\<[[:digit:]]+" . "[[:digit:]]+")
+    ("\\<\\([[:digit:]]\\|[XLVIM]\\)+" . "\\(r\\.\\|w\\.\\)")
+    ("\\<[[:digit:]]+" . "\\(tys\\.\\|mln\\|mld\\)")
+    ("\\<[[:digit:]]+" . "[kdcmn]?[glmVAW]") ; FIXME: case-sensitivity
+    ("\\<[[:digit:]]+" .
+     "\\(tys\\.\\|mln\\|mld\\|zł\\|gr\\|ha\\|t\\|mies\\|godz\\|min\\|sek\\)"))
   "A list of regexps between which tilde should be inserted."
   :group 'atilde
   :type '(alist :key-type regexp :value-type regexp))
