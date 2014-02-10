@@ -8,8 +8,10 @@ A minor mode for automagical insertion of tildes after or between some words in
 To quickly start up put this file somewhere in your `load-path` and add the
 following lines in your .emacs:
 
-    (require 'atilde)
-    (add-hook 'latex-mode-hook 'atilde-mode)
+```elisp
+(require 'atilde)
+(add-hook 'latex-mode-hook 'atilde-mode)
+```
 
 ## Description
 
@@ -37,7 +39,9 @@ To add new words after which tildes should be inserted you have to add a new
 regexp to `atilde-after-regexps` list. For example to have tildes be inserted
 after every single, two and three letter words u can do:
 
-    (setq atilde-after-regexps '("\\w\\{1,3\\}")')
+```elisp
+(setq atilde-after-regexps '("\\w\\{1,3\\}")')
+```
 
 On the other hand, to add a new pair of words between which tildes can be
 inserted, `atilde-between-regexps` has to be modified, which is a list of cons
@@ -51,7 +55,9 @@ To add a new environment as ignored one, add a cons cell, a regexp pair to the
 `atilde-ignored-envs` list. For example to ban insertion of tildes between
 `\begin{myenv}` and `\end{myenv}` do:
 
-    (add-to-list 'atilde-ignored-envs '("\\\\begin{myenv}" . "\\\\end{myenv}"))
+```elisp
+(add-to-list 'atilde-ignored-envs '("\\\\begin{myenv}" . "\\\\end{myenv}"))
+```
 
 ### Customize highlight positions of missing tildes
 
