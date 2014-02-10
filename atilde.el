@@ -84,14 +84,14 @@
   :type '(alist :key-type regexp :value-type regexp))
 
 (defcustom atilde-ignored-envs
-  '(("\\begin{displaymath}" . "\\end{displaymath}")
-    ("\\begin{displaystyle}" . "\\end{displaystyle}"))
-  "A list of ignored environments.
+  '(("\\\\begin{displaymath}" . "\\\\end{displaymath}")
+    ("\\\\begin{displaystyle}" . "\\\\end{displaystyle}"))
+  "A list of regexps containing ignored environments.
 
 Each cons cell consists of pairs with beginnings and endings of
 an environment."
   :group 'atilde
-  :type '(alist :key-type string :value-type string))
+  :type '(alist :key-type regexp :value-type regexp))
 
 (defcustom atilde-highlight-missing-tildes t
   "Set to non-nil if missing tildes should be highlighted."
@@ -176,38 +176,19 @@ Between given regexps whitespace characters are also being matched."
     (s-join "\\|")
     (format "\\(%s\\)")))
 
-(defun atilde-build-env-regexp ()
-  "Build regexp matching any beginning of an ignored environment."
-  (->> atilde-ignored-envs
-    (-map 'car)
-    (-map 'regexp-quote)
-    (s-join "\\|")
-    (format "\\(%s\\)")))
-
-(defun atilde-find-nearest-beg-env ()
-  "Find nearest beginning of ignored environment.
-
-Returns string with ending environment that ends found environment."
-  (when (re-search-backward (atilde-build-env-regexp) nil t)
-    (let ((env (match-string 1)))
-      (when env
-        (cdr (assoc env atilde-ignored-envs))))))
-
-(defun atilde-find-nearest-end-env (env)
-  "Find nearest ending ENV."
-  (search-forward env nil t))
-
 (defun atilde-in-ignored-env? ()
   "Check if point is in an ignored environment.
 
 See `atilde-ignored-envs' for a list of ignored environments."
-  (save-excursion
-    (let ((point (point)))
-      (-when-let (end-env (atilde-find-nearest-beg-env))
-        (let ((start (point))
-              (end (atilde-find-nearest-end-env end-env)))
-          (or (and end (< start point) (< point end))
-              (not end)))))))
+  (-any?
+   (lambda (regexp-pair)
+     (save-excursion
+       (let ((point (point))
+             (start (re-search-backward (car regexp-pair) nil t))
+             (end (re-search-forward (cdr regexp-pair) nil t)))
+         (or (and start end (< start point) (< point end))
+             (and start (not end))))))
+   atilde-ignored-envs))
 
 (defun atilde-in-verb? ()
   "Check if point is in verb.

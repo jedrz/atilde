@@ -47,11 +47,11 @@ inserted.
 
 ### Adding an ignored environment
 
-To add a new environment as ignored one, add a cons cell to the
+To add a new environment as ignored one, add a cons cell, a regexp pair to the
 `atilde-ignored-envs` list. For example to ban insertion of tildes between
 `\begin{myenv}` and `\end{myenv}` do:
 
-    (add-to-list 'atilde-ignored-envs '("\\begin{myenv}" . "\\end{myenv}"))
+    (add-to-list 'atilde-ignored-envs '("\\\\begin{myenv}" . "\\\\end{myenv}"))
 
 ### Customize highlight positions of missing tildes
 
