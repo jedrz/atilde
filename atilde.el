@@ -71,12 +71,11 @@
   :prefix "atilde-"
   :group 'atilde)
 
-(defcustom atilde-words
-  '("a" "e" "i" "o" "u" "w" "z"
-    "od" "nad" "pod")
-  "A list of words after which tilde can be inserted."
+(defcustom atilde-after-regexps
+  '("[aeiouwz]" "\\w\\{2\\}")
+  "A list of regexps after which tilde can be inserted."
   :group 'atilde
-  :type '(repeat string))
+  :type '(repeat regexp))
 
 (defcustom atilde-between-regexps
   '(("\\<[[:digit:]]+" . ".\\."))
@@ -153,12 +152,6 @@ if ARG is omitted or nil."
 
 (defconst atilde-not-whitespace-regexp "[^ \t\n]"
   "Regexp that doesn't match spaces, tabulators or newlines.")
-
-(defun atilde-build-words-regexp ()
-  "Build regexp matching any from `atilde-words'."
-  (->> atilde-words
-    (s-join "\\|")
-    (format "\\<\\(%s\\)")))
 
 (defun atilde-build-between-regexp ()
   "Buld regexp matching any pair from `atilde-between-regexps'.
@@ -238,10 +231,17 @@ The point is considered to be in verb environment if is:
   (nth 4 (syntax-ppss)))
 
 (defun atilde-check-prev-word? ()
-  "Check if previous word is the one from `atilde-words'."
+  "Check if previous word match a regexp from `atilde-after-regexps'.
+
+All whitespace characters before the cursor are ignored."
   (save-excursion
     (skip-chars-backward atilde-whitespace-string)
-    (looking-back (atilde-build-words-regexp) (line-beginning-position))))
+    (-any? (lambda (regexp)
+             (looking-back
+              ;; To match previous word separated with whitespace characters.
+              (concat "\\<" regexp)
+              (line-beginning-position)))
+           atilde-after-regexps)))
 
 (defun atilde-insert-between? ()
   "Check if point is between any pair of regexps from `atilde-between-regexps'."
@@ -270,9 +270,9 @@ The point is considered to be in verb environment if is:
 (defun atilde-space (arg)
   "Insert tilde or space ARG times.
 
-Tilde is inserted after `atilde-words' and also between any
-characters matching regular expression from
-`atilde-between-regexp' variable.
+Tilde is inserted after or between any characters matching
+regular expressions from `atilde-after-regexps' and
+`atilde-between-regexp' variables.
 
 If the point is in an ignored environment (see
 `atilde-ignored-envs') then always space is inserted."

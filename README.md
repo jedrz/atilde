@@ -14,7 +14,7 @@ following lines in your .emacs:
 ## Description
 
 With `atilde-mode` enabled, pressing the *space* key insert a hard space (tilde
-character) after Polish vowels or some short words. Tildes are also inserted
+character) after Polish vowels or two letter words. Tildes are also inserted
 between some words like: `2014~r.`.
 
 This package is indented to use in *LaTeX* buffers since some environments
@@ -33,12 +33,17 @@ Do `M-x customize-group atilde RET` to open a customize buffer and change some
 
 ### Adding new words to insert tildes after or between
 
-To add new words after which tildes should be inserted just add them to
-`atilde-words` list. On the other hand, to add a new pair of words between
-which tildes can be inserted, `atilde-between-regexps` has to be modified,
-which is a list of cons cells. Each cons cell consists of a regexp matching the
-preceding part of expression and the following one, between which tildes are
-allowed to be inserted.
+To add new words after which tildes should be inserted you have to add a new
+regexp to `atilde-after-regexps` list. For example to have tildes be inserted
+after every single, two and three letter words u can do:
+
+    (setq atilde-after-regexps '("\\w\\{1,3\\}")')
+
+On the other hand, to add a new pair of words between which tildes can be
+inserted, `atilde-between-regexps` has to be modified, which is a list of cons
+cells. Each cons cell consists of a regexp matching the preceding part of
+expression and the following one, between which tildes are allowed to be
+inserted.
 
 ### Adding an ignored environment
 
