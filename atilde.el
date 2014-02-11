@@ -210,7 +210,7 @@ The point is considered to be in verb environment if is:
   "Check if point is in a comment."
   (nth 4 (syntax-ppss)))
 
-(defun atilde-check-prev-word? ()
+(defun atilde-insert-after? ()
   "Check if previous word match a regexp from `atilde-after-regexps'.
 
 All whitespace characters before the cursor are ignored."
@@ -256,7 +256,7 @@ All whitespace characters before the cursor are ignored."
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
-  (and (or (atilde-check-prev-word?)
+  (and (or (atilde-insert-after?)
            (atilde-insert-between?))
        (not (atilde-in-comment?))
        (not (atilde-in-verb?))
