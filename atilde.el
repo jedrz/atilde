@@ -95,11 +95,11 @@
   :type '(repeat regexp))
 
 (defcustom atilde-between-regexps
-  '(("\\<[[:digit:]]+" . "[[:digit:]]+")
-    ("\\<\\([[:digit:]]\\|[XLVIM]\\)+" . "\\(r\\.\\|w\\.\\)")
-    ("\\<[[:digit:]]+" . "\\(tys\\.\\|mln\\|mld\\)")
-    ("\\<[[:digit:]]+" . "[kdcmn]?[glmVAW]") ; FIXME: case-sensitivity
-    ("\\<[[:digit:]]+" .
+  '(("[[:digit:]]+" . "[[:digit:]]+")
+    ("\\([[:digit:]]\\|[XLVIM]\\)+" . "\\(r\\.\\|w\\.\\)")
+    ("[[:digit:]]+" . "\\(tys\\.\\|mln\\|mld\\)")
+    ("[[:digit:]]+" . "[kdcmn]?[glmVAW]") ; FIXME: case-sensitivity
+    ("[[:digit:]]+" .
      "\\(tys\\.\\|mln\\|mld\\|zł\\|gr\\|ha\\|t\\|mies\\|godz\\|min\\|sek\\)"))
   "A list of regexps between which tilde should be inserted."
   :group 'atilde
@@ -230,7 +230,7 @@ All whitespace characters before the cursor are ignored."
      (save-excursion
        (and
         (re-search-backward
-         (car regexp-pair)
+         (atilde-build-between-beginning-regexp (car regexp-pair))
          ;; Take into account text up to first occurrence
          ;; of whitespace character only.
          (save-excursion
@@ -245,10 +245,14 @@ All whitespace characters before the cursor are ignored."
    atilde-between-regexps))
 
 (defun atilde-build-between-regexp (regexp-pair)
-  "Buld regexp matching REGEXP-PAIR'.
+  "Buld regexp matching whitespace characters between REGEXP-PAIR."
+  (concat (atilde-build-between-beginning-regexp (car regexp-pair))
+          atilde-whitespace-regexp
+          (cdr regexp-pair)))
 
-Between given regexp whitespace characters are also being matched."
-  (concat (car regexp-pair) atilde-whitespace-regexp (cdr regexp-pair)))
+(defun atilde-build-between-beginning-regexp (regexp)
+  "Match empty string too at the beginning of REGEXP."
+  (concat "\\<" regexp))
 
 (defun atilde-insert-tilde? ()
   "Check if tilde can be inserted at point."
