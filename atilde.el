@@ -137,6 +137,7 @@ an environment."
     map)
   "Keymap of `atilde-mode'.")
 
+;;;###autoload
 (define-minor-mode atilde-mode
   "Toggle automatically inserting of tildes in buffer.
 
@@ -262,6 +263,7 @@ All whitespace characters before the cursor are ignored."
        (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
 
+;;;###autoload
 (defun atilde-space (arg)
   "Insert tilde or space ARG times.
 
@@ -385,6 +387,7 @@ If BEG and END are not nil then overlays are deleted only between BEG and END."
         end (or end (point-max)))
   (-each (atilde-overlays-in beg end) 'delete-overlay))
 
+;;;###autoload
 (defun atilde-query-replace (&optional force)
   "Insert all missing tildes into the current buffer.
 
