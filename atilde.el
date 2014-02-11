@@ -81,7 +81,7 @@
 (defcustom atilde-after-regexps
   (list
    "[aeiouwz]"
-   "\\w\\{2\\}"                        ; two letter words
+   "[[:alpha:]]\\{2\\}"                 ; two letter words
    (concat
     "\\("
     "mgr\\|inż\\.\\|dr\\|prof\\.\\|hab\\.\\|bp\\|ks\\.\\|o+\\.\\|św\\.\\|"
