@@ -107,13 +107,29 @@
 
 (defcustom atilde-ignored-envs
   '(("\\\\begin{displaymath}" . "\\\\end{displaymath}")
-    ("\\\\begin{displaystyle}" . "\\\\end{displaystyle}"))
+    ("\\\\begin{displaystyle}" . "\\\\end{displaystyle}")
+    ("verb\\(.\\)" . 1))
   "A list of regexps containing ignored environments.
 
 Each cons cell consists of pairs with beginnings and endings of
-an environment."
+an environment.
+
+The beginning is a regexp matching beginning of a text part to be skipped.
+The ending matches end of the corresponding text part and can be:
+
+- a regexp matching the end of the text part to be skipped an
+
+- a number which is an index of sub expression defined in the
+  beginning regexp and is replaced by the sub expression
+
+- a list of regexps and numbers whose elements are concatenated,
+  while the numbers are replaced with corresponding sub
+  expressions of the beginning regexp."
   :group 'atilde
-  :type '(alist :key-type regexp :value-type regexp))
+  :type '(alist
+          :key-type regexp
+          :value-type (choice
+                       regexp integer (repeat (choice regexp integer)))))
 
 (defcustom atilde-highlight-missing-tildes t
   "Set to non-nil if missing tildes should be highlighted."
@@ -183,29 +199,39 @@ See `atilde-ignored-envs' for a list of ignored environments."
   (-any?
    (lambda (regexp-pair)
      (save-excursion
-       (let ((point (point))
-             (start (re-search-backward (car regexp-pair) nil t))
-             (end (re-search-forward (cdr regexp-pair) nil t)))
+       (let* ((point (point))
+              (start (re-search-backward (car regexp-pair) nil t))
+              (end (when start
+                     ;; Omit the beginning of the environment.
+                     (goto-char (+ (point) (length (match-string 0))))
+                     (re-search-forward
+                      (atilde-build-end-env-regexp regexp-pair
+                                                   (match-string 0))
+                      nil t))))
          (or (and start end (< start point) (< point end))
              (and start (not end))))))
    atilde-ignored-envs))
 
-(defun atilde-in-verb? ()
-  "Check if point is in verb.
+(defun atilde-build-end-env-regexp (regexp-pair match)
+  "Build a regexp matching the `cdr' of REGEXP-PAIR based on MATCH.
 
-The point is considered to be in verb environment if is:
-- between the verb beginning and the ending delimiter,
-- after the verb beginning and there is no delimiter."
-  (save-excursion
-    (let* ((pattern "\\<verb\\(.\\)")
-           (point (point))
-           (start (re-search-backward pattern (line-beginning-position) t))
-           (verb-delim (match-string 1))
-           (end (when verb-delim
-                  (goto-char (+ (point) (length "verb.")))
-                  (re-search-forward verb-delim (line-end-position) t))))
-      (or (and start end (< start point) (< point end))
-          (and start (not end))))))
+See the documentation of `atilde-ignored-envs' to find out how
+the regexp is built.
+
+The `cdr' of the REGEXP-PAIR can be a string then the string
+itself is returned or a list of strings and numbers specifying
+indexes of sub expressions from the `car' of the REGEXP-PAIR.  The
+numbers are replaced with corresponding parts of the MATCH and a
+concatenated string is returned."
+  (let ((matched-subexprs (s-match (car regexp-pair) match)))
+    (apply 'concat (-map (lambda (rx-or-index)
+                           (if (integerp rx-or-index)
+                               ;; Handle cases such as verb+.
+                               (regexp-quote (nth rx-or-index matched-subexprs))
+                             rx-or-index))
+                         ;; Convert to a list if the `cdr' of `regexp-pair' is
+                         ;; a string.
+                         (-list (cdr regexp-pair))))))
 
 (defun atilde-in-comment? ()
   "Check if point is in a comment."
@@ -260,7 +286,6 @@ All whitespace characters before the cursor are ignored."
   (and (or (atilde-insert-after?)
            (atilde-insert-between?))
        (not (atilde-in-comment?))
-       (not (atilde-in-verb?))
        (not (atilde-in-ignored-env?))))
 
 ;;;###autoload
