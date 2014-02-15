@@ -395,11 +395,10 @@ With a prefix argument (FORCE) replace all proper whitespace
 characters without asking for permission."
   (interactive "P")
   (if force
-      (progn
-        (let ((marker-pairs (atilde-get-missing-tildes-positions-as-markers)))
-          (save-excursion
-            (-each marker-pairs 'atilde-replace-whitespace))
-          (atilde-discard-markers marker-pairs)))
+      (let ((marker-pairs (atilde-get-missing-tildes-positions-as-markers)))
+        (save-excursion
+          (-each marker-pairs 'atilde-replace-whitespace))
+        (atilde-discard-markers marker-pairs))
     (error "Query replacing not implemented yet")))
 
 (defun atilde-replace-whitespace (position)
