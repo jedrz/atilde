@@ -246,7 +246,7 @@ All whitespace characters before the cursor are ignored."
    atilde-between-regexps))
 
 (defun atilde-build-between-regexp (regexp-pair)
-  "Buld regexp matching whitespace characters between REGEXP-PAIR."
+  "Build regexp matching whitespace characters between REGEXP-PAIR."
   (concat (atilde-build-between-beginning-regexp (car regexp-pair))
           atilde-whitespace-regexp
           (cdr regexp-pair)))
