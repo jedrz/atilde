@@ -106,9 +106,16 @@
   :type '(alist :key-type regexp :value-type regexp))
 
 (defcustom atilde-ignored-envs
-  '(("\\\\begin{displaymath}" . "\\\\end{displaymath}")
-    ("\\\\begin{displaystyle}" . "\\\\end{displaystyle}")
-    ("verb\\(.\\)" . 1))
+  '(("\\\\begin{equation}" . "\\\\end{equation}")
+    ("\\\\begin{eqnarray\\(\\*?\\)}" . ("\\\\end{eqnarray" 1 "}"))
+    ("\\\\begin{displaymath}" . "\\\\end{displaymath}")
+    ("\\\\[[]" . "\\\\[]]")
+    ("\\\\begin{math}" . "\\\\end{math}")
+    ;; FIXME: handle the same beginning and ending delimiters.
+    ;; ("\\$" . "\\$")
+    ("\\\\(" . "\\\\)")
+    ("\\\\begin{verbatim\\(\\*?\\)}" . ("\\\\end{verbatim" 1 "}"))
+    ("verb\\*?\\(.\\)" . 1))
   "A list of regexps containing ignored environments.
 
 Each cons cell consists of pairs with beginnings and endings of
