@@ -5,7 +5,7 @@ A minor mode for automagical insertion of tildes after or between some words in
 
 ## Usage
 
-To quickly start up put this file somewhere in your `load-path` and add the
+To quickly start up put `atilde.el` somewhere in your `load-path` and add the
 following lines in your .emacs:
 
 ```scheme
